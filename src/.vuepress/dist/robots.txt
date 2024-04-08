@@ -1,0 +1,5 @@
+
+User-agent:*
+Disallow:
+
+Sitemap: https://xsyl06.github.io/xsyl06/xsyl06/sitemap.xml
