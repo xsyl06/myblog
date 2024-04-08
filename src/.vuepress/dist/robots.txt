@@ -2,4 +2,4 @@
 User-agent:*
 Disallow:
 
-Sitemap: https://xsyl06.github.io/xsyl06/xsyl06/sitemap.xml
+Sitemap: https://xsyl06.github.io/xsyl06/myblog/sitemap.xml

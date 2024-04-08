@@ -13,7 +13,12 @@ projects:
     link: https://gitee.com/xsyl06/cht
 
   - icon: book
-    name: 学习心得
+    name: 学习心得（github）
     desc: 就是平常学习的笔记
-    link: https://xsyl06.github.io/xsyl06/
+    link: https://xsyl06.github.io/myblog/
+
+  - icon: book
+    name: 学习心得（gitee）
+    desc: 就是平常学习的笔记
+    link: https://xsyl06.gitee.io/myblog/
 ---
