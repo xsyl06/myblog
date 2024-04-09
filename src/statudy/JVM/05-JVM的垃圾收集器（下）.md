@@ -238,6 +238,7 @@ Per大大毫无遮掩地表示当前的ZGC如果遇到非常高的[对象分配�
 
 ​![image](/assets/img/image-20240408111725-omdfhgv.png)​
 
+
 ### **ZGC触发时机**
 
 ZGC目前有4中机制触发GC：
