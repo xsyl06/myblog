@@ -228,7 +228,7 @@ ZGC之前的垃圾回收器在处理漏标时使用的都是写屏障(Write Barr
 
 ### ZGC存在的问题
 
-ZGC最大的问题是**浮动垃圾**。ZGC的停顿时间是在10ms以下，但是ZGC的总的执行时间还是远远大于这个时间的。假如ZGC全过程需要执行10分钟，在这个期间由于对象分配速率很高，将创建大量的新对象，这些对象很难进入当次GC，所以只能在下次GC的时候进行回收，这些只能等到下次GC才能回收的对象就是浮动垃圾。
+1. ZGC最大的问题是**浮动垃圾**。ZGC的停顿时间是在10ms以下，但是ZGC的总的执行时间还是远远大于这个时间的。假如ZGC全过程需要执行10分钟，在这个期间由于对象分配速率很高，将创建大量的新对象，这些对象很难进入当次GC，所以只能在下次GC的时候进行回收，这些只能等到下次GC才能回收的对象就是浮动垃圾。
 ::: note ZGC问题
 Per大大毫无遮掩地表示当前的ZGC如果遇到非常高的[对象分配速率](https://www.zhihu.com/search?q=%E5%AF%B9%E8%B1%A1%E5%88%86%E9%85%8D%E9%80%9F%E7%8E%87&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra=%7B%22sourceType%22%3A%22answer%22%2C%22sourceId%22%3A458761494%7D)（allocation rate）的话会跟不上，目前唯一有效的“调优”方式就是增大整个GC堆的大小来让ZGC有更大的喘息空间。而添加分代或者Thread-Local GC则可以有效降低这种情况下对堆大小（喘息空间）的需求。<br/>
 作者：RednaxelaFX<br/>
@@ -238,6 +238,30 @@ Per大大毫无遮掩地表示当前的ZGC如果遇到非常高的[对象分配�
 
 ​![image](/assets/img/image-20240408111725-omdfhgv.png)​
 
+2. 前同事问过一个ZGC导致内存飙高的问题，因为不是我们的项目，只能边交流边goole。以下命令都是在测试环境执行，根据他说的，他们生产已经飙到了20G
+
+最开始以为是大对象占用太多，ZGC回收垃圾时，不会移动大对象。但通过`jstat -gc pid 1000 10`这个命令查看了一下堆内存占用还好，只有1.3G，但是`free -g`命令看却又占用了5G
+
+![](/assets/img/img_20240410145738.png)
+![](/assets/img/img_20240410145919.png)
+
+使用`ps -p pid -o pid,user,&cpu,smem,vsz,rss,tty,stat,start,time,command`命令查看rss发现也差不多占用了5G
+
+![](/assets/img/img_20240410150635.png)
+
+想使用`jmap -heap pid`才发现命令变了，变成了`jhsdb jmap --heap --pid pid`,重新执行后，发现jvm命令给出的堆内占用和jstat差不多，和linux检查出的内存占用有出入。
+
+![](/assets/img/img_20240410150803.png)
+
+网上搜索一番后，让同事使用`top`命令查看了一下，和预想的差不多，也是6G左右。
+
+![](/assets/img/img_20240410151005.png)
+
+最后通过在上查到的解答，发现ZGC使用了内存映射技术，将同一份物理内存映射为了三份虚拟内存
+
+[ZGC内存突破物理内存](https://stackoverflow.com/questions/57899020/zgc-max-heap-size-exceed-physical-memory)
+
+因为同事还没代码权限，问我的时候拉出来了堆内信息，而且业务是跑批类型，会处理大量数据，最后估计还是要优化代码，看是否是大对象导致GC回收效率跟不上分配效率导致内存变高。
 
 ### **ZGC触发时机**
 
