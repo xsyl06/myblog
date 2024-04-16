@@ -1,6 +1,7 @@
 import { hopeTheme } from "vuepress-theme-hope";
 import navbar from "./navbar.js";
 import sidebar from "./sidebar.js";
+import { searchProPlugin } from "vuepress-plugin-search-pro";
 
 export default hopeTheme({
   hostname: "https://xsyl06.github.io/myblog/",
@@ -19,7 +20,7 @@ export default hopeTheme({
   docsDir: "src",
 
   // 导航栏
-  //navbar,
+  navbar,
 
   // 侧边栏
   sidebar,
@@ -59,8 +60,17 @@ export default hopeTheme({
   // 在这里配置主题提供的插件
   plugins: {
     blog: true,
-    searchPro:true,
-
+    searchPro: {
+      indexContent: true,
+      autoSuggestions: true,
+      hotReload: true,
+      customFields: [
+        {
+          getter: ({ frontmatter }): string[] => <string[]>frontmatter["tag"],
+          formatter: `Tag: $content`,
+        },
+      ],
+    },
     // 在启用之前需要安装 @waline/client
     // 警告: 这是一个仅供演示的测试服务器，在生产环境中请自行部署并使用自己的服务器！
     // comment: {
