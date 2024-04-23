@@ -15,6 +15,10 @@ export default navbar([
         text: "Mysql",
         link:"Mysql/"
       },
+      {
+        text: "Redis",
+        link:"Redis/"
+      },
     ],
   }
 ]);
